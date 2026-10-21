@@ -1,0 +1,55 @@
+= Overview
+:toc: left
+
+> https://code.claude.com/docs/en/overview
+
+* Claude Code is an agentic coding tool that reads your codebase, edits files,
+  runs commands, and integrates with your development tools.
+* Available in your terminal, IDE, desktop app, and browser.
+
+'''
+
+* Claude Code is an AI-powered coding assistant that helps you build features,
+  fix bugs, and automate development tasks.
+* It understands your entire codebase and can work across multiple files and
+  tools to get things done.
+
+== Get started
+
+* Most surfaces require a Claude subscription or Anthropic Console account.
+
+=== Terminal
+
+* The full-featured CLI for working with Claude Code directly in your
+  terminal.
+* To install Claude Code, open a terminal and run the command for your system.
+
+=== Native Install (Recommended)
+
+* macOS, Linux, WSL:
+
+[source,bash]
+curl -fsSL https://claude.ai/install.sh | bash
+
+* The install command shows no progress while it downloads Claude Code.
+* When the installer finishes, open a new terminal window and run `claude
+  --version`
+* If your shell says claude isn't found or isn't recognized, the install
+  directory isn't on your PATH yet: see Fix your PATH.
+
+'''
+
+* Then start Claude Code in any project.
+* Replace your-project with the path to a project directory on your machine:
+
+[,bash]
+----
+cd your-project
+claude
+----
+
+* Claude Code prompts you to log in on first use.
+* If you've set the `ANTHROPIC_API_KEY` environment variable and you approve
+  the key when Claude Code asks whether to use it, Claude Code skips the login
+  prompt.
+* Continue with the Quickstart.
