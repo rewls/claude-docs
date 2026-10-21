@@ -1,0 +1,244 @@
+= Best practices for Claude Code
+:toc: left
+
+> https://code.claude.com/docs/en/best-practices
+
+[.lead]
+Tips and patterns for getting the most out of Claude Code, from configuring
+your environment to scaling across parallel sessions.
+
+* Claude Code can read your files, run commands, make changes, and
+  autonomously work through problems while you watch, redirect, or step away
+  entirely.
+
+'''
+
+* This changes how you work.
+* Instead of writing code yourself and asking Claude to review it, you
+  describe what you want and Claude figures out how to build it.
+* Claude explores, plans, and implements.
+
+'''
+
+* But this autonomy still comes with a learning curve.
+* Claude works within certain constraints you need to understand.
+
+'''
+
+* This guide covers patterns that have proven effective across Anthropic's
+  internal teams and for engineers using Claude Code across various codebases,
+  languages, and environments.
+
+'''
+
+* Most best practices are based on one constraint: Claude's context window
+  fills up fast, and performance degrades as it fills.
+
+'''
+
+* Claude's context window holds your entire conversation, including every
+  message, every file Claude reads, and every command output.
+* However, this can fill up fast.
+* A single debugging session or codebase exploration might generate and
+  consume tens of thousands of tokens.
+
+'''
+
+* This matters since LLM performance degrades as context fills.
+* When the context window is getting full, Claude may start "forgetting"
+  earlier instructions or making more mistakes.
+* The context window is the most important resource to manage.
+* Track context usage continuously with a custom status line, and see Reduce
+  token usage for strategies on reducing token usage.
+
+== Give Claude a way to verify its work
+
+[TIP]
+====
+* Give Claude a check it can run: tests, a build, a screenshot to compare.
+* It's the difference between a session you watch and one you walk away from.
+====
+
+* Claude stops when the work looks done.
+* Without a check it can run, "looks done" is the only signal available, and
+  you become the verification loop: every mistake waits for you to notice it.
+* Give Claude something that produces a pass or fail, and the loop closes on
+  its own.
+* Claude does the work, runs the check, reads the result, and iterates until
+  the check passes.
+
+'''
+
+* The check is anything that returns a signal Claude can read in the
+  conversation: a test suite, a build exit code, a linter, a script that diffs
+  output against a fixture, or a browser screenshot compared against a design.
+* Run `/verify` yourself after Claude's check passes to confirm the change
+  against the running app.
+
+[%header,cols="h,2*d"]
+|===
+|Strategy	|Before	|After
+
+|Provide verification criteria
+|"implement a function that validates email addresses"
+|"write a validateEmail function. example test cases: user@example.com is
+ true, invalid is false, user@.com is false. run the tests after implementing"
+
+|Verify UI changes visually
+|"make the dashboard look better"
+|"[paste screenshot] implement this design. take a screenshot of the result
+ and compare it to the original. list differences and fix them"
+
+|Address root causes, not symptoms
+|"the build is failing"
+|"the build fails with this error: [paste error]. fix it and verify the build
+ succeeds. address the root cause, don't suppress the error”
+
+'''
+
+* Once the check exists, decide how hard it gates the stop:
+
+'''
+
+In one prompt::
+* ask Claude to run the check and iterate in the same message, as in the table
+  above.
+
+Across a session::
+* set the check as a `/goal` condition.
+* A separate evaluator re-checks it after every turn and Claude keeps working
+  until the goal resolves.
+* If Claude stalls, Claude Code eventually stops the run with the goal still
+  set -- see how /goal evaluation works.
+
+As a deterministic gate::
+* a Stop hook runs your check as a script and blocks the turn from ending
+  until it passes.
+* Stop input covers the cap on consecutive blocks.
+
+By a second opinion::
+* a verification subagent or a dynamic workflow that checks its own findings
+  has a fresh model try to refute the result, so the agent doing the work
+  isn't the one grading it.
+
+* Each step trades setup for attention.
+* The prompt version works on any task today.
+* The `/goal` and Stop hook versions are what let an unattended run finish
+  correctly without you.
+
+'''
+
+* Have Claude show evidence rather than asserting success: the test output,
+  the command it ran and what it returned, or a screenshot of the result.
+* Reviewing evidence is faster than re-running the verification yourself, and
+  it works for sessions you weren't watching.
+
+== Explore first, then plan, then code
+
+[TIP]
+====
+* Separate research and planning from implementation to avoid solving the
+  wrong problem.
+====
+
+* Letting Claude jump straight to coding can produce code that solves the
+  wrong problem.
+* Use plan mode to separate exploration from execution.
+
+* The recommended workflow has four phases:
+
+=== 1 Explore
+
+* Enter plan mode by pressing `Shift+Tab` until the status bar shows `⏸ plan
+  mode on`, or start the session with `claude --permission-mode plan`.
+* Claude reads files and answers questions without making changes.
+
+....
+read /src/auth and understand how we handle sessions and login.
+also look at how we manage environment variables for secrets.
+....
+
+=== 2 Plan
+
+* Ask Claude to create a detailed implementation plan.
+
+....
+I want to add Google OAuth. What files need to change?
+What's the session flow? Create a plan.
+....
+
+* Press `Ctrl+G` to open the plan in your text editor for direct editing
+  before Claude proceeds.
+
+=== 3 Implement
+
+* Switch out of plan mode by approving the plan or pressing `Shift+Tab`, then
+  let Claude code, verifying against its plan.
+
+....
+implement the OAuth flow from your plan. write tests for the
+callback handler, run the test suite and fix any failures.
+....
+
+=== 4 Commit
+
+* Ask Claude to commit with a descriptive message and create a PR.
+
+....
+commit with a descriptive message and open a PR
+....
+
+[NOTE]
+====
+* Plan mode is useful, but also adds overhead.
+* For tasks where the scope is clear and the fix is small (like fixing a typo,
+  adding a log line, or renaming a variable) ask Claude to do it directly.
+* Planning is most useful when you're uncertain about the approach, when the
+  change modifies multiple files, or when you're unfamiliar with the code
+  being modified.
+* If you could describe the diff in one sentence, skip the plan.
+====
+
+== Avoid common failure patterns
+
+* These are common mistakes.
+* Recognizing them early saves time:
+
+'''
+
+The kitchen sink session::
+* You start with one task, then ask Claude something unrelated, then go back
+  to the first task.
+* Context is full of irrelevant information.
+Fix:::
+** `/clear` between unrelated tasks.
+
+Correcting over and over::
+* Claude does something wrong, you correct it, it's still wrong, you correct
+  again.
+* Context is polluted with failed approaches.
+Fix:::
+** After two failed corrections, `/clear` and write a better initial prompt
+   incorporating what you learned.
+
+The over-specified CLAUDE.md::
+* If your CLAUDE.md is too long, Claude ignores half of it because important
+  rules get lost in the noise.
+Fix:::
+** Ruthlessly prune.
+** If Claude already does something correctly without the instruction, delete
+   it or convert it to a hook.
+
+The trust-then-verify gap::
+* Claude produces a plausible-looking implementation that doesn't handle edge
+  cases.
+Fix:::
+** Always provide verification (tests, scripts, screenshots).
+** If you can't verify it, don't ship it.
+
+The infinite exploration::
+* You ask Claude to "investigate" something without scoping it.
+* Claude reads hundreds of files, filling the context.
+Fix:::
+** Scope investigations narrowly or use subagents so the exploration doesn't
+   consume your main context.
