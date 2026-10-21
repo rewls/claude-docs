@@ -1,0 +1,83 @@
+= Quickstart
+:toc: left
+
+> https://code.claude.com/docs/en/quickstart
+
+* This quickstart covers Claude Code in your terminal: installing the CLI,
+  signing in from your first session, and using it for common development
+  tasks in your own project.
+
+== Step 2: Start your first session
+
+* Open your terminal in any project directory and start Claude Code:
+
+[,bash]
+----
+cd /path/to/your/project
+claude
+----
+
+* Type `/help` for available commands or `/resume` to continue a previous conversation.
+* To switch accounts later or re-authenticate, type `/login` inside the
+  running session.
+
+== Step 3: Ask your first question
+
+[INFORMATION]
+====
+* Claude Code reads your project files as needed.
+* You don't have to manually add context.
+====
+
+== Step 4: Make your first code change
+
+* The session's permission mode sets which actions Claude can take without
+  asking you first.
+* Press `Shift+Tab` at any time to switch the permission mode of the session
+  you're in.
+
+== Step 5: Use Git with Claude Code
+
+* Claude Code makes Git operations conversational.
+
+== Step 6: Fix a bug or add a feature
+
+* Describe what you want in natural language.
+
+== Step 7: Test out other common workflows
+
+* Try a few more prompts.
+* You can ask Claude to refactor code, write tests, update documentation, or
+  review your changes.
+
+== Essential commands
+
+* Here are the most important commands for daily use, grouped by where you run them.
+
+=== Shell commands
+
+* Run these from your terminal to start or resume Claude Code.
+
+[%header,cols=m,d]
+|===
+|Command			|What it does
+
+|claude				|Start interactive mode
+|claude "task"		|Start interactive mode with an initial prompt
+|claude -p "query"	|Run one-off query, then exit
+|claude -c			|Continue most recent conversation in current directory
+|claude -r			|Resume a previous conversation
+|===
+
+=== Session commands
+
+* Run these inside Claude Code after it starts.
+
+[%header,cols=m,d]
+|===
+|Command				|What it does
+
+|/clear					|Clear conversation history
+|/help					|Show available commands
+|/exit or Ctrl+D twice	|Exit Claude Code
+|===
