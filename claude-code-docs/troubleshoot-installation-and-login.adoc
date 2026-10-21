@@ -1,0 +1,29 @@
+= Troubleshoot installation and login
+:toc: left
+
+== Verify your PATH
+
+* If installation succeeded but you get a `command not found` error when
+  running `claude`, the install directory isn't in your PATH.
+* Your shell searches for programs in directories listed in PATH, and the
+  installer places `claude` at `~/.local/bin/claude` on macOS/Linux
+
+=== macOS/Linux
+
+* Check that the installer put the program in place:
+
+[source,bash]
+ls -la ~/.local/bin/claude
+
+* List your PATH entries and filter for the install folder:
+
+[source,bash]
+echo $PATH | tr ':' '\n' | grep -Fx "$HOME/.local/bin"
+
+* For Bash on Linux, where it's the default on most distributions:
+
+[,bash]
+----
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+----
