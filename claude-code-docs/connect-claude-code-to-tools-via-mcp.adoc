@@ -1,0 +1,75 @@
+= Connect Claude Code to tools via MCP
+:toc: left
+:source-highlighter: rouge
+
+== Practical examples
+
+=== Example: Connect to GitHub for code reviews
+
+* GitHub's remote MCP server authenticates with a GitHub personal access
+  token passed as a header.
+* Add the server:
+
+[source,bash]
+----
+claude mcp add --transport http github https://api.githubcopilot.com/mcp/ \
+  --header "Authorization: Bearer YOUR_GITHUB_PAT"
+----
+
+* Replace `YOUR_GITHUB_PAT` with your personal access token.
+
+'''
+
+* The `claude mcp add` command saves the configuration without validating
+  credentials, so a placeholder value is accepted here but the server fails
+  to connect later.
+* To verify the connection, run `/mcp` and check that the server's row
+  shows a checkmark.
+
+'''
+
+Then work with GitHub:
+
+....
+Review PR #456 and suggest improvements
+....
+
+....
+Create a new issue for the bug we just found
+....
+
+....
+Show me all open PRs assigned to me
+....
+
+=== Example: Query your PostgreSQL database
+
+* DBHub, the `@bytebase/dbhub` package, is an MCP server that connects
+  Claude to a relational database through the connection string you pass
+  in `--dsn`.
+* Use a read-only database user in the connection string so the queries
+  Claude runs can't modify data:
+
+[source,bash]
+----
+claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
+  --dsn "postgresql://readonly:pass@prod.db.com:5432/analytics"
+----
+
+'''
+
+* To confirm the server starts, run `/mcp` and check that the `db` row
+  shows a checkmark.
+* Then query your database naturally:
+
+....
+What's our total revenue this month?
+....
+
+....
+Show me the schema for the orders table
+....
+
+....
+Find customers who haven't made a purchase in 90 days
+....
