@@ -93,6 +93,7 @@ your environment to scaling across parallel sessions.
 |"the build is failing"
 |"the build fails with this error: [paste error]. fix it and verify the build
  succeeds. address the root cause, don't suppress the error”
+|===
 
 '''
 
@@ -871,6 +872,7 @@ Agent teams::
   middleware patterns.`
 
 |`Here's the review feedback: [Session B output]. Address these issues.`
+|
 |===
 
 * You can do something similar with tests: have one Claude write tests, then
