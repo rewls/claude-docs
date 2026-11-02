@@ -1,0 +1,36 @@
+= Customize your status line
+:toc: left
+:source-highlighter: rouge
+
+[.lead]
+Configure a custom status bar to monitor context window usage, costs, and git status in Claude Code
+
+[quote]
+https://code.claude.com/docs/en/statusline
+
+* The status line is a customizable bar at the bottom of Claude Code that
+  runs any shell script you configure.
+* It receives JSON session data on stdin and displays whatever your script
+  prints.
+* It gives you a persistent, at-a-glance view of context usage, costs, git
+  status, or anything else you want to track.
+
+'''
+
+* Status lines are useful when you:
+** Want to monitor context window usage as you work
+** Need to track session costs
+** Work across multiple sessions and need to distinguish them
+** Want git branch and status always visible
+
+'''
+
+* The status line renders in its own row above the built-in footer badges
+  and does not replace them.
+* With a custom status line configured, Claude Code stops showing most of
+  the footer's keyboard hints, including `esc to interrupt`, the
+  `? for shortcuts` fallback, and the `hold space to speak` voice dictation
+  hint.
+* To add clickable link badges to the footer when an ID appears in the
+  conversation, without writing a script, configure `footerLinksRegexes`
+  instead.
