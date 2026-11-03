@@ -1,0 +1,195 @@
+= Set up Claude Code in a monorepo or large codebase
+:source-highlighter: rouge
+:toc: left
+
+[.lead]
+Configure Claude Code for monorepos and large single-tree codebases with
+nested CLAUDE.md files, sparse worktrees, code intelligence, and per-package
+skills so Claude stays focused on the code you're working in.
+
+'''
+
+* A large codebase can be one repository with millions of lines or a
+  monorepo with many packages.
+* Claude Code works at any size, but as the codebase grows, the defaults
+  tuned for smaller projects can fill the context window with instructions
+  and file reads unrelated to the task.
+* That costs tokens and degrades Claude's performance.
+
+'''
+
+* This guide shows individual developers and engineering teams how to scope
+  Claude to the part of the codebase a task touches.
+* Each section notes whether a setting is personal to your machine or
+  committed to the repository.
+
+== What this guide covers
+
+* The table below lists each setting and what it accomplishes.
+* The file tree after it is the example monorepo every code sample on this
+  page refers to.
+
+=== Settings on this page
+
+* Each setting below is independent.
+* They layer rather than replace each other, so apply whichever fit your
+  repository.
+* Choose where to start Claude determines where your settings files live, so
+  read it first.
+* Put it together shows all of them combined.
+
+[%header%autowidth]
+|===
+|I want to |Use
+
+|Load only the conventions for the code you touch, instead of one root file
+covering every subsystem
+|Per-directory CLAUDE.md files
+
+|Exclude CLAUDE.md files for packages you never work in
+|`claudeMdExcludes`
+
+|Block Claude from opening build output, generated code, and vendored
+dependencies
+|`Read` deny rules in `permissions.deny`
+
+|Find a symbol's definition or callers through the language server instead of
+scanning files
+|A code intelligence plugin
+
+|Check out only the directories a task needs when Claude creates a worktree
+|`worktree.sparsePaths`
+
+|Read and edit a sibling package or another repository from the same session
+|`--add-dir` or `additionalDirectories`
+
+|Give Claude procedures specific to one area that load only when relevant
+|Per-directory skills
+
+|Replace many per-directory CLAUDE.md files with one set of conventions
+everyone installs
+|A plugin in an internal marketplace
+|===
+
+[TIP]
+====
+* For workflow techniques that keep context small in any repository, see Best
+  practices for Claude Code.
+* One example is running exploration in a subagent so file reads stay out of
+  the main conversation.
+* To roll out a baseline configuration to every developer in your
+  organization, see Set up Claude Code for your organization.
+====
+
+'''
+
+=== The example monorepo
+
+* The examples throughout this page refer to a monorepo with three packages.
+* The same patterns work in a large single-tree codebase.
+* Where an example uses `packages/api/`, substitute your own subsystem
+  directory such as `src/backend/` or `lib/core/`.
+
+....
+monorepo/
+  CLAUDE.md                     # root instructions
+  packages/
+    api/
+      CLAUDE.md                 # API-specific instructions
+      .claude/skills/
+      src/
+    web/
+      CLAUDE.md                 # frontend-specific instructions
+      .claude/skills/
+      src/
+    shared/
+      CLAUDE.md                 # shared library instructions
+      src/
+....
+
+'''
+
+== Scope worktrees and file access
+
+* These settings control what's on disk in worktrees and which directories
+  Claude can read and write beyond your starting point.
+
+'''
+
+=== Grant access across packages or repositories
+
+* This section applies when you start Claude from a subdirectory, or when a
+  task spans multiple checkouts.
+* If you start from the repository root in a single large tree, Claude
+  already has access to every file and you can skip this.
+
+'''
+
+* The `additionalDirectories` setting in `.claude/settings.json` gives Claude
+  access to directories outside the working directory.
+* The example below grants access to two sibling packages.
+
+.packages/api/.claude/settings.json
+[source,json]
+----
+{
+  "permissions": {
+    "additionalDirectories": [
+      "../shared",
+      "../web"
+    ]
+  }
+}
+----
+
+* Relative paths resolve against the directory you start Claude from.
+* With this configuration, Claude can read and edit files in
+  `packages/shared/` and `packages/web/` while working from `packages/api/`.
+* You can also grant access at runtime without editing settings by passing
+  `--add-dir` when you start Claude:
+
+....
+claude --add-dir ../shared
+....
+
+'''
+
+* However you add a directory, Claude can read and edit files in it.
+* Whether the directory's CLAUDE.md, `.claude/rules/` files, and skills also
+  load depends on how you added it:
+
+[%header%autowidth,cols=3]
+|===
+|Added with |CLAUDE.md and rules |Loads skills
+
+|`additionalDirectories` setting
+|Never
+|Never
+
+|`--add-dir` flag or `/add-dir` command
+|Only with the environment variable below
+|Yes
+|===
+
+'''
+
+* To load CLAUDE.md and rules files from a directory added with `--add-dir`
+  or `/add-dir`, set the `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`
+  environment variable:
+
+....
+CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared
+....
+
+'''
+
+* The environment variable has no effect on directories listed in the
+  `additionalDirectories` setting.
+* See Load from additional directories for details.
+
+'''
+
+* For sibling directories that everyone in this area needs, commit
+  `additionalDirectories` to `.claude/settings.json`.
+* For a personal selection or one-off access, use
+  `.claude/settings.local.json` or pass `--add-dir` at launch.
