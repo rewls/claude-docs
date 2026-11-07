@@ -1,7 +1,7 @@
 = Best practices for Claude Code
 :toc: left
 :source-highlighter: rouge
-:revdate: 2026-11-03
+:revdate: 2026-11-04
 
 [quote]
 https://code.claude.com/docs/en/best-practices
@@ -337,7 +337,7 @@ I want to add rate limiting to the public API but haven't thought it through yet
 
 '''
 
-* In a session, run `/context` to confirm that Claude loaded the file.
+* In a session, run `/context all` to confirm that Claude loaded the file.
 
 '''
 
