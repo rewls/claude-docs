@@ -1,7 +1,7 @@
 = Best practices for Claude Code
 :toc: left
 :source-highlighter: rouge
-:revdate: 2026-11-04
+:revdate: 2026-11-07
 
 [quote]
 https://code.claude.com/docs/en/best-practices
@@ -374,6 +374,135 @@ I want to add rate limiting to the public API but haven't thought it through yet
 * Either the file has grown long enough that the line gets lost, or the line
   is a rule that can't have exceptions, in which case it belongs in a hook.
 ====
+
+== Give Claude a check to run
+
+* Claude stops when the work looks done.
+* If it has nothing to run that tells it whether the work actually _is_ done,
+  "looks done" is all it has to go on.
+* In practice that makes you the test suite, and every mistake sits there
+  until you happen to notice it.
+
+'''
+
+* If you give it something that comes back pass or fail, Claude can close
+  that loop itself.
+* It makes the change, runs the check, and if something broke it reads the
+  output and fixes it before running the check again.
+
+'''
+
+[TIP]
+====
+* Give Claude something it can run that comes back pass or fail. +
+  Once it has that, it can keep going on its own and you don't have to watch.
+====
+
+'''
+
+* The check can be almost anything, as long as Claude can read the result:
+** A test file
+** A build's exit code
+** A linter
+** A script that diffs output against a fixture
+** A browser screenshot next to the mockup
+
+'''
+
+* If your repo already has one of these, the single most useful line in your
+  `CLAUDE.md` is the command that runs it.
+
+'''
+
+* How strict you make the check is up to you.
+* The options go from Claude deciding for itself all the way to Claude Code
+  enforcing it:
+
+'''
+
+* In the prompt: `run the auth tests after, and keep going until they pass`.
+  Claude decides for itself when it's satisfied.
+  This works for any task, today, with no setup.
+* As a goal: `/goal all tests in tests/auth pass and lint is clean` sets a
+  condition that a separate model checks against the conversation after every
+  turn, and Claude keeps going until it's met.
+  You rarely need this in the session yourself.
+  It matters for long background runs, where Claude sometimes ends a turn with
+  a progress summary while items are still open, and the goal sends it back.
+* As a `Stop` hook: a Stop hook runs your script whenever Claude tries to end
+  its turn, and sends Claude back to work if the script exits with code 2.
+  This one is enforced by Claude Code (the harness), so the turn doesn't end
+  until the typecheck passes or the block limit is reached.
+  There's an example further down.
+* By someone who didn't write the code: in the terminal, `/code-review` reviews
+  the diff in a fresh subagent that never saw your conversation.
+  It isn't swayed by the reasoning that produced the code.
+
+'''
+
+* Whichever option you use, ask Claude for _evidence_: the command it ran and
+  its output, or the screenshot.
+* "All tests pass" on its own tells you very little, and reading the output is
+  faster than rerunning the check yourself.
+* For a session you weren't watching, it's also the only evidence you have.
+
+'''
+
+[TIP]
+====
+* Once Claude says it's done, you can also run `/verify` in the session, which
+  has Claude build and run the app and look at the result. +
+  That catches the kind of problem that tests and typechecks miss.
+====
+
+=== Review against your spec
+
+* If you'd rather have the review check the work against your plan than hunt
+  for bugs in general, write the review prompt yourself:
+
+....
+use a subagent to review the rate limiter diff against SPEC.md, check every requirement is implemented and the listed edge cases have tests, report gaps that affect correctness and skip style
+....
+
+[WARNING]
+====
+* Don't drop the `skip style` part of that prompt.
+* A reviewer that's asked to find problems will always find something.
+* If you fix every finding, you end up with extra abstraction layers and tests
+  for cases that can't happen.
+====
+
+=== Enforce the check with a Stop hook
+
+* The `Stop` hook version of the typecheck rule is a few lines in
+  `.claude/settings.json`.
+* Exit code 2 is what blocks the stop.
+* Whatever the command prints to stderr goes back to Claude as the reason it
+  can't finish yet, which is why the compiler output is redirected there:
+
+[source,json]
+----
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "pnpm tsc --noEmit 1>&2 || exit 2" }
+        ]
+      }
+    ]
+  }
+}
+----
+
+'''
+
+* To see it work, ask Claude for a change that breaks a type.
+* Instead of finishing, it gets the compiler errors back and keeps going until
+  `tsc` passes.
+* If the hook blocks eight stops in a row with no tool call between them,
+  Claude Code overrides the next block and ends the turn.
+* To raise the cap, set `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`.
 
 == Change a default
 
