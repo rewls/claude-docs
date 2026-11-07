@@ -7,21 +7,31 @@
 https://code.claude.com/docs/en/best-practices
 
 [.lead]
-Get more out of Claude Code: tell Claude what it can't see, give it a check to run, and enforce the rules that can't have exceptions.
+Get more out of Claude Code: tell Claude what it can't see, give it a
+check to run, and enforce the rules that can't have exceptions.
 
-* Claude Code is built in a way that, in most cases, your first plain prompt in a fresh session already does the right thing, without any setup on your part.
+* Claude Code is built in a way that, in most cases, your first plain
+  prompt in a fresh session already does the right thing, without any
+  setup on your part.
 * For example:
 
 '''
 
-* To let commands run safely without you approving each one, new terminal and VS Code sessions start in auto mode, where a classifier reviews anything risky before it runs.
-* To keep your main conversation focused while independent work happens in parallel, Claude delegates to subagents and checks in only when it has to.
-* To keep a long session going without you managing it, your conversation is compacted automatically before the context window fills.
+* To let commands run safely without you approving each one, new
+  terminal and VS Code sessions start in auto mode, where a classifier
+  reviews anything risky before it runs.
+* To keep your main conversation focused while independent work happens
+  in parallel, Claude delegates to subagents and checks in only when it
+  has to.
+* To keep a long session going without you managing it, your
+  conversation is compacted automatically before the context window
+  fills.
 
 '''
 
 * This page covers what to do when the defaults aren't enough.
-* That usually happens when your project has knowledge, rules, or constraints that Claude can't see from the code alone:
+* That usually happens when your project has knowledge, rules, or
+  constraints that Claude can't see from the code alone:
 
 '''
 
@@ -32,25 +42,35 @@ Get more out of Claude Code: tell Claude what it can't see, give it a check to r
 
 '''
 
-* No default can know those things about your project, so this is where a small amount of setup on your side pays off.
+* No default can know those things about your project, so this is where
+  a small amount of setup on your side pays off.
 
 '''
 
-* When a session doesn't go the way you expected, it's almost always one of these:
+* When a session doesn't go the way you expected, it's almost always one
+  of these:
 
 '''
 
-* Claude built something different from what you had in mind, or it has to rediscover the same fact at the start of every session. +
-  It's missing information it can't get from reading the repo. See Tell Claude what it can't see.
-* Claude said it was done and it wasn't quite, usually because it had no way to check its own work. See Give Claude a check to run.
-* Claude did something that must never happen in this repo, or skipped a step that must always happen. +
-  A prompt alone can't guarantee either of those. See Enforce the rules that can't have exceptions.
-* Claude got it right, but it took more time, tokens, or permission prompts than the task was worth. See Change a default.
+* Claude built something different from what you had in mind, or it has
+  to rediscover the same fact at the start of every session. +
+  It's missing information it can't get from reading the repo. See Tell
+  Claude what it can't see.
+* Claude said it was done and it wasn't quite, usually because it had no
+  way to check its own work. See Give Claude a check to run.
+* Claude did something that must never happen in this repo, or skipped a
+  step that must always happen. +
+  A prompt alone can't guarantee either of those. See Enforce the rules
+  that can't have exceptions.
+* Claude got it right, but it took more time, tokens, or permission
+  prompts than the task was worth. See Change a default.
 
 '''
 
-* Let Claude run without you applies the same four points to unattended runs.
-* What you can stop doing lists the advice that current models have made unnecessary.
+* Let Claude run without you applies the same four points to unattended
+  runs.
+* What you can stop doing lists the advice that current models have made
+  unnecessary.
 
 == Deterministic and non-deterministic instructions
 
@@ -62,14 +82,17 @@ Non-deterministic::
 * You write the instruction, and Claude (the model) reads it.
 * This can be your prompt, `CLAUDE.md`, or a skill.
 * The model then decides what to do with this information.
-* It usually follows your commands, and current models are good at understanding your intent without much context.
+* It usually follows your commands, and current models are good at
+  understanding your intent without much context.
 * There's no _guarantee_ that it'll follow your instructions.
 * It can still decide not to do things, or do other things.
 
 Deterministic::
-* You configure the instruction, and Claude Code (the harness) _has_ to execute this.
+* You configure the instruction, and Claude Code (the harness) _has_ to
+  execute this.
 * This can be a hook, a deny rule, or a managed setting.
-* Claude Code applies this every time, no matter what the model decided to do.
+* Claude Code applies this every time, no matter what the model decided
+  to do.
 
 '''
 
@@ -105,25 +128,38 @@ Deterministic::
 '''
 
 * Most of the time, you want Claude to decide.
-* Almost every guideline has exceptions, and current models are good at reading the code in front of them and judging whether a guideline fits the situation.
-* With the actual code in front of it, Claude is usually better placed to make that call than a rule you wrote in advance.
+* Almost every guideline has exceptions, and current models are good at
+  reading the code in front of them and judging whether a guideline fits
+  the situation.
+* With the actual code in front of it, Claude is usually better placed to
+  make that call than a rule you wrote in advance.
 
 '''
 
-* The deterministic kind is for when you want to make sure certain things _always_ happen (or never happen), no matter what the model decides.
+* The deterministic kind is for when you want to make sure certain things
+  _always_ happen (or never happen), no matter what the model decides.
 * This doesn't have to be anything dramatic.
-* Auto mode already blocks the dramatic things, like a production deploy or a force push over someone's work.
-* It's usually something specific to _your_ project, and it can be as niche as you want it to be:
+* Auto mode already blocks the dramatic things, like a production deploy
+  or a force push over someone's work.
+* It's usually something specific to _your_ project, and it can be as
+  niche as you want it to be:
 ** Never edit the generated client in `src/gen/`
 ** Always run the license-header script after creating a file
 
 '''
 
-* You could've written either of these as a line in `CLAUDE.md` or in your prompt, and Claude would follow it nearly every time.
-* But no matter how strongly you word it, whether Claude follows that line on a given turn is still Claude's call.
+* You could've written either of these as a line in `CLAUDE.md` or in your
+  prompt, and Claude would follow it nearly every time.
+* But no matter how strongly you word it, whether Claude follows that line
+  on a given turn is still Claude's call.
 
-TIP: If you keep adding emphasis to a CLAUDE.md line and Claude still misses it, that's a sign the line belongs in a hook.
-The reverse holds too: if you have hooks for things that are only preferences, delete them and let Claude decide.
+[TIP]
+====
+* If you keep adding emphasis to a CLAUDE.md line and Claude still misses
+  it, that's a sign the line belongs in a hook.
+* The reverse holds too: if you have hooks for things that are only
+  preferences, delete them and let Claude decide.
+====
 
 == Tell Claude what it can't see
 
@@ -131,9 +167,13 @@ TIP: Only write down what Claude can't find by reading the repo, or what it woul
 
 '''
 
-* Claude starts every task by reading your code, and current models are _very_ good at this.
-* They'll find your file layout, your conventions, your test framework, and how existing components are built, usually faster than you could explain them.
-* That means Claude already knows most of what you might be tempted to write down for it.
+* Claude starts every task by reading your code, and current models are
+  _very_ good at this.
+* They'll find your file layout, your conventions, your test framework, and
+  how existing components are built, usually faster than you could explain
+  them.
+* That means Claude already knows most of what you might be tempted to write
+  down for it.
 
 '''
 
@@ -147,7 +187,9 @@ TIP: Only write down what Claude can't find by reading the repo, or what it woul
 
 '''
 
-* There's also information that _is_ in the repo but takes a few minutes of digging to find, and Claude has to redo that digging at the start of every session.
+* There's also information that _is_ in the repo but takes a few minutes of
+  digging to find, and Claude has to redo that digging at the start of every
+  session.
 
 '''
 
@@ -164,12 +206,16 @@ TIP: Only write down what Claude can't find by reading the repo, or what it woul
 
 === Write a specific prompt
 
-* A specific prompt helps for the same reason, because it gives Claude information it doesn't already have.
-* If you name the file, describe the symptom, and say what "fixed" looks like up front, you usually save yourself a round of corrections later.
+* A specific prompt helps for the same reason, because it gives Claude
+  information it doesn't already have.
+* If you name the file, describe the symptom, and say what "fixed" looks
+  like up front, you usually save yourself a round of corrections later.
 
 '''
 
-* The same goes for a preference between two reasonable approaches: Claude can't read that from the code, so if you care which one it picks, say so up front.
+* The same goes for a preference between two reasonable approaches: Claude
+  can't read that from the code, so if you care which one it picks, say so
+  up front.
 
 [%header%autowidth,cols="2*e"]
 |===
@@ -185,25 +231,32 @@ TIP: Only write down what Claude can't find by reading the repo, or what it woul
 
 '''
 
-* If you already have the thing Claude needs, hand it over instead of describing it:
+* If you already have the thing Claude needs, hand it over instead of
+  describing it:
 
 '''
 
 * A file: type `@` and the path to include the file contents in your message.
 * An image: paste the screenshot of the design or the error into the prompt.
-* Command output: pipe it in from your shell with `cat error.log | claude -p "what's going on here"`.
+* Command output: pipe it in from your shell with
+  `cat error.log | claude -p "what's going on here"`.
 
 '''
 
-* Phrases like think step by step or be thorough are ordinary prompt text rather than keywords.
-* The main control for how hard Claude thinks is the effort level, which Change the model and effort covers.
-* Wording like that can still nudge Claude within its effort setting, but it won't lift it past it.
+* Phrases like think step by step or be thorough are ordinary prompt text
+  rather than keywords.
+* The main control for how hard Claude thinks is the effort level, which
+  Change the model and effort covers.
+* Wording like that can still nudge Claude within its effort setting, but it
+  won't lift it past it.
 
 '''
 
 * One phrase that does still help is be ambitious.
-* Claude tends to read a request conservatively and build the smallest thing that satisfies it, since it can't see how much you were hoping for.
-* When you want the fuller version, with the edge cases handled and the natural follow-on included, say so:
+* Claude tends to read a request conservatively and build the smallest thing
+  that satisfies it, since it can't see how much you were hoping for.
+* When you want the fuller version, with the edge cases handled and the
+  natural follow-on included, say so:
 
 ....
 build the settings page from the mockup. be ambitious: empty and error states, the save flow wired up, keyboard navigation, not just the layout
@@ -211,16 +264,19 @@ build the settings page from the mockup. be ambitious: empty and error states, t
 
 '''
 
-* That's telling Claude about scope, which only you know, rather than how hard to think.
+* That's telling Claude about scope, which only you know, rather than how
+  hard to think.
 
 '''
 
-* When you're exploring rather than fixing something specific, a vague prompt like `what would you improve in this file?` is completely fine.
+* When you're exploring rather than fixing something specific, a vague prompt
+  like `what would you improve in this file?` is completely fine.
 * You'll correct a bit more as you go, and that's the trade-off.
 
 === Brainstorm with Claude first
 
-* When you don't know exactly what you want yet, you don't have to work it all out before you prompt.
+* When you don't know exactly what you want yet, you don't have to work it
+  all out before you prompt.
 * Ask Claude to interview you instead:
 
 ....
@@ -229,24 +285,34 @@ I want to add rate limiting to the public API but haven't thought it through yet
 
 '''
 
-* Claude comes back with multiple-choice questions about the parts you haven't pinned down: per-user versus per-key limits, what happens to requests over the limit, what's out of scope.
+* Claude comes back with multiple-choice questions about the parts you
+  haven't pinned down: per-user versus per-key limits, what happens to
+  requests over the limit, what's out of scope.
 * It keeps asking until the answers add up to a spec.
 
 '''
 
-* Once `SPEC.md` exists, start a fresh session to build from it, so the build begins with a clean context and a written definition of done.
-* It's also the file you'll point the reviewer at later, in Give Claude a check to run.
+* Once `SPEC.md` exists, start a fresh session to build from it, so the build
+  begins with a clean context and a written definition of done.
+* It's also the file you'll point the reviewer at later, in Give Claude a
+  check to run.
 
 === Keep CLAUDE.md short
 
-* Claude Code loads `CLAUDE.md` into every session, which means every line in it takes a little of Claude's attention on _every_ task, whether it's relevant or not.
-* That's why the file works best when it only holds what Claude couldn't work out from the code itself:
+* Claude Code loads `CLAUDE.md` into every session, which means every line in
+  it takes a little of Claude's attention on _every_ task, whether it's
+  relevant or not.
+* That's why the file works best when it only holds what Claude couldn't work
+  out from the code itself:
 
 '''
 
-* How to confirm work in this repo: the exact test, typecheck, and lint commands, and how to run a single test file
-* Places where the code is misleading: an old pattern that's everywhere but that new code must not copy, or a directory that looks unused but isn't
-* Decisions that aren't in the repo: which error helper the team settled on, how deploys work, what needs a migration review
+* How to confirm work in this repo: the exact test, typecheck, and lint
+  commands, and how to run a single test file
+* Places where the code is misleading: an old pattern that's everywhere but
+  that new code must not copy, or a directory that looks unused but isn't
+* Decisions that aren't in the repo: which error helper the team settled on,
+  how deploys work, what needs a migration review
 * Anything you've had to correct twice already
 
 '''
@@ -277,8 +343,10 @@ I want to add rate limiting to the public API but haven't thought it through yet
 
 * Notice that the typecheck line is only the command.
 * Claude needs to know the command so it can check its own work as it goes.
-* If you also want Claude Code to _enforce_ a passing typecheck before Claude finishes, that's a job for a `Stop` hook.
-* A line like `Always typecheck before you finish` in this file works most of the time, not every time.
+* If you also want Claude Code to _enforce_ a passing typecheck before Claude
+  finishes, that's a job for a `Stop` hook.
+* A line like `Always typecheck before you finish` in this file works most of
+  the time, not every time.
 
 '''
 
@@ -286,16 +354,26 @@ I want to add rate limiting to the public API but haven't thought it through yet
 
 '''
 
-* `/init` generates a starting version from your codebase. From there the work is mostly removing lines. The memory guide recommends staying under 200.
-* `/doctor` suggests cuts for anything Claude can already work out from the code.
-* `/doctor prompt-audit` flags instructions that were written for older models, point at files that no longer exist, or contradict each other.
+* `/init` generates a starting version from your codebase. +
+  From there the work is mostly removing lines. The memory guide recommends
+  staying under 200.
+* `/doctor` suggests cuts for anything Claude can already work out from the
+  code.
+* `/doctor prompt-audit` flags instructions that were written for older
+  models, point at files that no longer exist, or contradict each other.
 
 '''
 
-* Your personal preferences go in `CLAUDE.local.md` instead of `CLAUDE.md`, and you add that file to `.gitignore` so it stays out of the repo.
+* Your personal preferences go in `CLAUDE.local.md` instead of `CLAUDE.md`,
+  and you add that file to `.gitignore` so it stays out of the repo.
 
-NOTE: If Claude keeps ignoring a line that _is_ in CLAUDE.md, adding IMPORTANT probably won't fix it.
-Either the file has grown long enough that the line gets lost, or the line is a rule that can't have exceptions, in which case it belongs in a hook.
+[NOTE]
+====
+* If Claude keeps ignoring a line that _is_ in CLAUDE.md, adding IMPORTANT
+  probably won't fix it.
+* Either the file has grown long enough that the line gets lost, or the line
+  is a rule that can't have exceptions, in which case it belongs in a hook.
+====
 
 == Change a default
 
@@ -326,11 +404,13 @@ When that happens, run /usage in the session to see where it went.
 
 * Broad codebase searches go to the built-in Explore agent.
 * Side tasks get forked while fork mode is on (the default).
-* The subagents it starts run in the background by default, so your main conversation keeps moving.
+* The subagents it starts run in the background by default, so your main
+  conversation keeps moving.
 
 '''
 
-* You rarely need to ask for any of this, but it helps to know what you're getting and what it costs.
+* You rarely need to ask for any of this, but it helps to know what you're
+  getting and what it costs.
 
 '''
 
@@ -338,20 +418,28 @@ When that happens, run /usage in the session to see where it went.
 
 '''
 
-* Running independent pieces of work at the same time, so the whole task finishes sooner
-* Keeping long output, like a full test run or a wide search, out of your main conversation, where it would otherwise ride along for the rest of the session
+* Running independent pieces of work at the same time, so the whole task
+  finishes sooner
+* Keeping long output, like a full test run or a wide search, out of your
+  main conversation, where it would otherwise ride along for the rest of the
+  session
 * Getting a reviewer that hasn't seen how the code was written
-* Giving a task fewer tools than the main session has, like a reviewer that can read but not edit
+* Giving a task fewer tools than the main session has, like a reviewer that
+  can read but not edit
 
 '''
 
-* What they cost you is mostly tokens, since every subagent sends its own requests and they count against the same usage as your main conversation.
-* Sometimes it's time as well: a fresh subagent first has to gather context your conversation already had, so it can end up _slower_ than doing the task where you are.
+* What they cost you is mostly tokens, since every subagent sends its own
+  requests and they count against the same usage as your main conversation.
+* Sometimes it's time as well: a fresh subagent first has to gather context
+  your conversation already had, so it can end up _slower_ than doing the
+  task where you are.
 
 '''
 
 * And by default it's the same model (or a smaller one) on the same task.
-* You get parallelism or a fresh pair of eyes out of it, but not a smarter answer.
+* You get parallelism or a fresh pair of eyes out of it, but not a smarter
+  answer.
 
 '''
 
@@ -359,12 +447,17 @@ When that happens, run /usage in the session to see where it went.
 
 '''
 
-* Set `model:` haiku in a subagent's definition if its work is simple, like collecting the files that import a module or checking links in the docs. +
-  That kind of job doesn't need the bigger model, and Haiku costs a lot less per request.
-* Ask for short summaries back, so twenty results don't fill your context anyway.
-* Check `/usage` to see what share of your usage each subagent type takes, so you can tell which ones are earning their cost.
+* Set `model:` haiku in a subagent's definition if its work is simple, like
+  collecting the files that import a module or checking links in the docs. +
+  That kind of job doesn't need the bigger model, and Haiku costs a lot less
+  per request.
+* Ask for short summaries back, so twenty results don't fill your context
+  anyway.
+* Check `/usage` to see what share of your usage each subagent type takes, so
+  you can tell which ones are earning their cost.
 * Give a custom subagent in `.claude/agents/` only `tools: Read, Grep, Glob`. +
-  Now it's a reviewer that can't edit anything, and that limit is enforced by Claude Code rather than requested in a prompt.
+  Now it's a reviewer that can't edit anything, and that limit is enforced by
+  Claude Code rather than requested in a prompt.
 
 '''
 
@@ -385,4 +478,5 @@ and report only the gaps that affect correctness. Skip style.
 
 '''
 
-* Ask Claude to `have the reviewer compare the rate limiter against SPEC.md` and the gaps come back into your session, where Claude can fix them.
+* Ask Claude to `have the reviewer compare the rate limiter against SPEC.md`
+  and the gaps come back into your session, where Claude can fix them.
